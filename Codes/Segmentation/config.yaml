@@ -1,0 +1,59 @@
+# BraTS 2025 Segmentation Pipeline Configuration
+
+# Device
+device: cuda                   # Use 'cuda' for GPU, 'cpu' for CPU
+
+# Data paths
+train_data_dir: ../../Dataset/Segementation/BraTS_GLI/Training
+test_data_dir: ../../Dataset/Segementation/BraTS_GLI/Testing
+model_dir: ../../Models/Segmentation/
+output_dir: ../../Models/Segmentation/predictions
+
+# Data loading
+num_workers: 8
+batch_size: 2                  # Adjust based on GPU memory
+
+# Preprocessing & augmentation
+intensity_normalization: zscore
+augmentations:
+  - RandFlipd
+  - RandRotate90d
+  - Rand3DElasticd
+  - RandScaleIntensityd
+  - RandShiftIntensityd
+
+# Model
+architecture: vnet           # (Options: nnunet, unet, vnet, custom)
+pretrained: false
+
+# Training
+epochs: 300
+learning_rate: 2e-4
+optimizer: AdamW
+loss: DiceCELoss
+mixed_precision: true
+early_stopping_patience: 50
+
+# Validation
+val_interval: 1                # Validate every N epochs
+
+# Postprocessing
+postprocess:
+  largest_component: true
+  min_region_volume: 10        # Minimum region size in voxels to keep
+
+# Metrics
+metrics:
+  - dice
+  - nsd
+  - hausdorff
+
+# Reporting
+report:
+  generate_pdf: true
+  include_visuals: true
+  include_metrics: true
+  include_volumes: true
+
+# Random seed
+seed: 42
